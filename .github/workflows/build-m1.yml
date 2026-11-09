@@ -9,24 +9,34 @@ jobs:
     runs-on: macos-15
 
     steps:
-      - name: Checkout Nether Bedrock Cracker
+      - name: Checkout cracker source
         uses: actions/checkout@v4
         with:
           repository: 19MisterX98/Nether_Bedrock_Cracker
           ref: gui
+          path: cracker
+
+      - name: Verify source
+        run: |
+          pwd
+          ls -la cracker
+          test -f cracker/Cargo.toml
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-darwin
 
-      - name: Build for Apple Silicon
-        run: cargo build --release --target aarch64-apple-darwin
+      - name: Build for M1
+        working-directory: cracker
+        run: |
+          cargo build --release \
+            --target aarch64-apple-darwin
 
-      - name: Package executable
+      - name: Package binary
         run: |
           mkdir -p dist
-          cp target/aarch64-apple-darwin/release/bedrock_cracker dist/
+          cp cracker/target/aarch64-apple-darwin/release/bedrock_cracker dist/
           chmod +x dist/bedrock_cracker
 
       - name: Upload binary
