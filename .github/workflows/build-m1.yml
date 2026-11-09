@@ -33,11 +33,23 @@ jobs:
           cargo build --release \
             --target aarch64-apple-darwin
 
-      - name: Package binary
+
+      - name: Package binaries
         run: |
+          echo "Available release files:"
+          ls -lah cracker/target/aarch64-apple-darwin/release/
+
           mkdir -p dist
-          cp cracker/target/aarch64-apple-darwin/release/bedrock_cracker dist/
-          chmod +x dist/bedrock_cracker
+
+          find cracker/target/aarch64-apple-darwin/release \
+            -maxdepth 1 -type f -perm -111 \
+            -exec cp {} dist/ \;
+
+          echo "Packaged files:"
+          ls -lah dist/
+
+          test -n "$(ls -A dist)"
+
 
       - name: Upload binary
         uses: actions/upload-artifact@v4
