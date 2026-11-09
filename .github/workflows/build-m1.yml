@@ -1,0 +1,37 @@
+
+name: Build Apple Silicon M1
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/build-m1.yml"
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust ARM64
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Build release
+        run: |
+          cargo build --release --target aarch64-apple-darwin
+
+      - name: Package executable
+        run: |
+          mkdir -p dist
+          cp target/aarch64-apple-darwin/release/bedrock_cracker dist/
+          chmod +x dist/bedrock_cracker
+
+      - name: Upload Apple M1 binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nether-Bedrock-Cracker-M1
+          path: dist/
